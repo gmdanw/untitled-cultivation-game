@@ -18,6 +18,11 @@ class Person():
         self.realm = realm
         self.gender = gender
 
+        self.stats = {
+            'qi': 0,
+            'health': 100
+        }
+
 class Event():
     def __init__(self, title, description, conditions, choices):
         self.title = title
@@ -42,11 +47,33 @@ def check_input(user_input):
     else:
         return False
 
+def cultivate(player):
+    player.stats['qi'] += 5
+    return player
+
+def rest(player):
+    player.stats['health'] += 15
+    return player
+
+player = Person('Yang Kai', 19, 'Qi refining', 'Male')
+
+
+
 while True:
     display_options(world_state)
+
     user_input = input()
     if check_input(user_input) == False:
         print('Not an option bud, try again \n')
         user_input = input()
-    else:
-        print('Il think about it')
+    
+    if user_input == '1':
+        player = cultivate(player)
+        print('Qi is now:', player.stats['qi'])
+        world_state.pass_time()
+        
+    elif user_input == '2':
+        player = rest(player)
+        print('Health is now:', player.stats['health'])
+        world_state.pass_time()
+
