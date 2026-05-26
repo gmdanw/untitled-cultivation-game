@@ -1,79 +1,122 @@
-class WorldState():
+class World():
     def __init__(self):
         self.year = 0
         self.month = 0
     
     def pass_time(self):
-        if self.month != 12:
+        if self.month < 12:
             self.month += 1
         else:
-            self.year += 1
-            self.month = 0
-        
+            self.year +=1
+            self.month = 1
 
-class Person():
-    def __init__(self, name, age, realm, gender):
+world = World()
+
+class Player():
+    def __init__(self, name, realm_index, age):
         self.name = name
+        self.realm_index = realm_index
         self.age = age
-        self.realm = realm
-        self.gender = gender
 
         self.stats = {
             'qi': 0,
             'health': 100
         }
+    
 
-class Event():
-    def __init__(self, title, description, conditions, choices):
-        self.title = title
-        self.description = description
-        self.conditions = conditions
-        self.choices = choices
+protagonist = Player('Yang Kai', 1, 19)
 
-world_state = WorldState()
 
-def display_options(world_state):
-    year = world_state.year
-    month = world_state.month
-    print('It is currently year', year, 'month', month)
-    print('[1]. Cultivate')
-    print('[2]. Rest')
-    print('[3]. Explore')
 
-def check_input(user_input):
-    whitelist = ['1', '2', '3']
+def cultivate(player):
+    player.stats['qi'] += 5
+
+def rest(player):
+    player.stats['health'] += 15
+
+def explore(player):
+    print('WIP :tongue:')
+
+def breakthrough(player):
+    player.realm_index += 1
+    player.stats['qi'] = 0
+
+
+
+realms = {
+    1: {
+        'name': 'Qi refining',
+        'qi_requirement': 50,
+    },
+    2: {
+        'name': 'Foundation establishment',
+        'qi_requirement': 75,
+    },
+    3: {
+        'name': 'Core formation',
+        'qi_requirement': 100,
+    },
+    4: {
+        'name': 'Nascent soul',
+        'qi_requirement': 125,
+    }    
+}
+
+actions = {
+    'cultivate': cultivate,
+    'rest': rest,
+    'explore': explore,
+    'breakthrough': breakthrough
+}
+
+
+
+def compile_available_actions(player):
+    available_actions = {
+        '1': 'cultivate',
+        '2': 'rest',
+        '3': 'explore'
+    }
+    
+    realm_index = player.realm_index
+    qi_requirement = realms[realm_index]['qi_requirement']
+
+
+    if player.stats['qi'] >= qi_requirement:
+        action_number = str(len(available_actions) + 1)
+        available_actions[action_number] = 'breakthrough'
+    
+    return available_actions
+
+def display_available_actions(available_actions):
+    print('It is currently year', world.year, 'month', world.month)
+    for action_index in available_actions:
+        print('['+ action_index + ']', available_actions[action_index])
+
+def check_user_input(user_input, available_actions):
+    whitelist = []
+    for action_index in available_actions:
+        whitelist.append(action_index)
     if user_input in whitelist:
         return True
     else:
         return False
 
-def cultivate(player):
-    player.stats['qi'] += 5
-    return player
-
-def rest(player):
-    player.stats['health'] += 15
-    return player
-
-player = Person('Yang Kai', 19, 'Qi refining', 'Male')
+def execute_action(user_input, available_actions, player):
+    action = available_actions[user_input]
+    actions[action](player)
 
 
 
 while True:
-    display_options(world_state)
-
+    available_actions = compile_available_actions(protagonist)
+    display_available_actions(available_actions)
     user_input = input()
-    if check_input(user_input) == False:
-        print('Not an option bud, try again \n')
-        user_input = input()
-    
-    if user_input == '1':
-        player = cultivate(player)
-        print('Qi is now:', player.stats['qi'])
-        world_state.pass_time()
-        
-    elif user_input == '2':
-        player = rest(player)
-        print('Health is now:', player.stats['health'])
-        world_state.pass_time()
 
+    if check_user_input(user_input, available_actions) == False:
+        print('Not an option bud')
+        continue
+    
+    execute_action(user_input, available_actions, protagonist)
+    world.pass_time()
+    
